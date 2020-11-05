@@ -1,5 +1,7 @@
 package com.findshur.game;
 
+import com.findshur.packets.RemovePlayerPacket;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,6 +19,7 @@ public class Client implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private boolean running = false;
+    private EventListener listener;
 
     // constructor
     public Client(String host, int port) {
@@ -30,6 +33,7 @@ public class Client implements Runnable {
             socket = new Socket(host, port);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
+            listener = new EventListener();
             new Thread(this).start();
         } catch (ConnectException e) {
             System.out.println("Unable to connect to the server.");
@@ -41,7 +45,8 @@ public class Client implements Runnable {
     public void close() {
         try {
             running = false;
-            // TODO(David): tell the server that we disconnected
+            RemovePlayerPacket packet = new RemovePlayerPacket();
+            sendObject(packet);
             in.close();
             out.close();
             socket.close();
@@ -67,7 +72,7 @@ public class Client implements Runnable {
             while (running) {
                 try {
                     Object data = in.readObject();
-                    // TODO(David): handle data
+                    listener.received(data);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 } catch (SocketException e) {
