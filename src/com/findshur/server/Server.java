@@ -1,10 +1,8 @@
 package com.findshur.server;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Connection;
 
 public class Server implements Runnable {
 
